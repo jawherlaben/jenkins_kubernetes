@@ -5,35 +5,31 @@ pipeline {
     }
     stages {
         stage('Build Maven') {
-    steps {
-        checkout scm: [
-            $class: 'GitSCM', 
-            branches: [[name: '*/main']], 
-            userRemoteConfigs: [[
-                url: 'https://github.com/jawherlaben/devops-integration',
-                credentialsId: 'github-token'
-            ]]
-        ]
-    }
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/jawherlaben/devops-automation-main']]])
+                sh 'mvn clean install'
+            }
         }
-        stage('Build docker image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t /devops-integration .'
+                    sh 'docker build -t jawherlabben/pipeline:latest .'
                 }
             }
         }
-        stage('Push image to Hub') {
+        stage('Push Docker Image to Hub') {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                        sh 'docker login -u jawherlabben -p ${dockerhubpwd}'
+                        sh """
+                            echo ${dockerhubpwd} | docker login -u jawherlabben --password-stdin
+                            docker push jawherlabben/pipeline:latest
+                        """
                     }
-                    sh 'docker push jawherlabben/devops-integration'
                 }
             }
         }
-        stage('Deploy to k8s') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
                     kubernetesDeploy(configs: 'deploymentservice.yaml', kubeconfigId: 'k8sconfigpwd')
