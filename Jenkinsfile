@@ -5,10 +5,16 @@ pipeline {
     }
     stages {
         stage('Build Maven') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/jawherlaben/devops-integration']]])
-                sh 'mvn clean install'
-            }
+    steps {
+        checkout scm: [
+            $class: 'GitSCM', 
+            branches: [[name: '*/main']], 
+            userRemoteConfigs: [[
+                url: 'https://github.com/jawherlaben/devops-integration',
+                credentialsId: 'github-token'
+            ]]
+        ]
+    }
         }
         stage('Build docker image') {
             steps {
@@ -21,9 +27,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                        sh 'docker login -u jawherlaben -p ${dockerhubpwd}'
+                        sh 'docker login -u jawherlabben -p ${dockerhubpwd}'
                     }
-                    sh 'docker push jawherlaben/devops-integration'
+                    sh 'docker push jawherlabben/devops-integration'
                 }
             }
         }
