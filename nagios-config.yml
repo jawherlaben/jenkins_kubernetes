@@ -1,0 +1,11 @@
+- name: Configurer Nagios pour la surveillance
+  hosts: nagios_server
+  tasks:
+    - name: Ajouter la configuration du service
+      copy:
+        src: nagios/service.cfg
+        dest: /usr/local/nagios/etc/services/service.cfg
+    - name: Redémarrer Nagios
+      service:
+        name: nagios
+        state: restarted
