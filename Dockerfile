@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     software-properties-common
 
+RUN groupadd -g 999 docker
+
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
     echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list && \
     apt-get update && apt-get install -y docker-ce-cli
