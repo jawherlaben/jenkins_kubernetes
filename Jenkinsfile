@@ -6,31 +6,35 @@ pipeline {
     stages {
         stage('Build Maven') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/jawherlaben/devops-automation-main']]])
+                // Cloner et construire le projet Maven
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/jawherlaben/jenkins_kubernetes']]])
                 sh 'mvn clean install'
             }
         }
-        stage('Build Docker Image') {
+        
+
+        stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    sh 'docker build -t jawherlabben/pipeline:latest .'
+                withKubeConfig(
+                    caCertificate: '', 
+                    clusterName: 'minikube', 
+                    contextName: 'minikube', 
+                    credentialsId: 'minikube-jenkins-secret', 
+                    namespace: '', 
+                    restrictKubeConfigAccess: false, 
+                    serverUrl: 'https://192.168.49.2:8443'  
+                ) {
+                    sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
+                    sh 'chmod u+x ./kubectl' 
+                    sh "./kubectl version --client" 
+                    sh './kubectl apply -f deploymentservice.yaml'
                 }
             }
         }
-        stage('Push Docker Image to Hub') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                        sh """
-                            echo ${dockerhubpwd} | docker login -u jawherlabben --password-stdin
-                            docker push jawherlabben/pipeline:latest
-                        """
-                    }
-                }
-            }
-        }
+        
+ 
 
-
+    }
     post {
         success {
             echo 'Pipeline completed successfully!'
@@ -39,7 +43,5 @@ pipeline {
             echo 'Pipeline failed!'
         }
     }
-
-
-    }
 }
+
