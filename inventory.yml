@@ -2,3 +2,9 @@ all:
   hosts:
     localhost:
       ansible_connection: local
+      ansible_python_interpreter: /usr/bin/python3
+
+nagios_server:
+  hosts:
+    nagios_server_address:
+      ansible_user: root
