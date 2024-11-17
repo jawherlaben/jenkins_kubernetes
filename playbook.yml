@@ -1,0 +1,23 @@
+- name: Configurer un serveur avec Ansible
+  hosts: localhost
+  tasks:
+    - name: Copier un fichier de configuration
+      copy:
+        src: /path/to/local/file.conf
+        dest: /etc/myapp/config.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Redémarrer un service
+      service:
+        name: myapp
+        state: restarted
+
+    - name: Vérifier l'état d'un service
+      shell: systemctl status myapp
+      register: service_status
+
+    - name: Afficher l'état du service
+      debug:
+        msg: "{{ service_status.stdout }}"
