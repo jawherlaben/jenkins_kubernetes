@@ -1,34 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: springboot-deployment
-  labels:
-    app: springboot
+  name: my-app-deployment
+  namespace: default
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: springboot
+      app: my-app
   template:
     metadata:
       labels:
-        app: springboot
+        app: my-app
     spec:
       containers:
-        - name: springboot-app
-          image: jawherlabben/pipeline:latest
-          ports:
-            - containerPort: 8080
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: springboot-service
-spec:
-  selector:
-    app: springboot
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
-  type: LoadBalancer
+      - name: my-app
+        image: my-docker-image:latest
+        ports:
+        - containerPort: 80
