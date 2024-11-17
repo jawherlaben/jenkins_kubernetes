@@ -1,7 +1,9 @@
-pipeline {
+pipeline  {
     agent any
     tools {
         maven 'maven_3_5_0'
+        ansible 'Ansible'
+
     }
     
     stages {
@@ -24,7 +26,7 @@ pipeline {
     }
     
 
-        stage('Push Docker Image to Hub') {
+         stage('Push Docker Image to Hub') {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
@@ -36,7 +38,6 @@ pipeline {
                 }
             }
         }
-        
 
         stage('Deploy to Kubernetes') {
             steps {
@@ -57,6 +58,17 @@ pipeline {
             }
         }
         
+        
+    stage('Run Ansible Playbook') {
+        steps {
+            script {
+                sh '''
+                    ansible-playbook -i inventory.yml playbook.yml
+                '''
+            }
+        }
+    }
+
 
     }
     
@@ -70,4 +82,3 @@ pipeline {
         }
     }
 }
-
