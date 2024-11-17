@@ -1,16 +1,6 @@
-- name: Configurer un serveur avec Ansible
+- name: Afficher l'état du système
   hosts: localhost
   tasks:
-
-    - name: Redémarrer un service
-      service:
-        name: myapp
-        state: restarted
-
-    - name: Vérifier service
-      shell: systemctl status myapp
-      register: service_status
-
-    - name: Afficher l'état du service
-      debug:
-        msg: "{{ service_status.stdout }}"
+    - name: Afficher le temps de fonctionnement (uptime)
+      command: uptime
+      register: uptime_output
